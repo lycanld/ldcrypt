@@ -4,15 +4,32 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>LĐ Crypt</title>
+  <link rel="icon" type="image/png" href="key.png">
   <style>
-    * {
-      box-sizing: border-box;
+    :root {
+      --bg-color: #121212;
+      --text-color: #e0e0e0;
+      --input-bg: #2c2c2c;
+      --highlight: #ff9900;
+      --tab-bg: #1e1e1e;
+      --accent: #ff7b00;
     }
+    body.light {
+      --bg-color: #f4f4f4;
+      --text-color: #222;
+      --input-bg: #fff;
+      --tab-bg: #e0e0e0;
+      --highlight: #ff7b00;
+      --accent: #c57d00;
+    }
+
+    * { box-sizing: border-box; }
     body {
       margin: 0;
       font-family: "Segoe UI", sans-serif;
-      background-color: #121212;
-      color: #e0e0e0;
+      background-color: var(--bg-color);
+      color: var(--text-color);
+      transition: 0.3s;
     }
     .container {
       max-width: 800px;
@@ -22,7 +39,7 @@
     h2 {
       text-align: center;
       margin-bottom: 1.5rem;
-      color: #ffae5e;
+      color: var(--highlight);
     }
     .tabs {
       display: flex;
@@ -33,18 +50,18 @@
       flex: 1;
       padding: 0.75rem;
       text-align: center;
-      background-color: #1e1e1e;
+      background-color: var(--tab-bg);
       cursor: pointer;
       border-radius: 0.5rem 0.5rem 0 0;
       transition: background 0.3s;
     }
     .tab.active {
-      background-color: #ff7b00;
+      background-color: var(--highlight);
       color: #fff;
     }
     .tab-content {
       display: none;
-      background-color: #1e1e1e;
+      background-color: var(--tab-bg);
       padding: 1.5rem;
       border-radius: 0 0 0.5rem 0.5rem;
     }
@@ -60,8 +77,8 @@
       padding: 0.75rem;
       border: 1px solid #333;
       border-radius: 0.5rem;
-      background-color: #2c2c2c;
-      color: #fff;
+      background-color: var(--input-bg);
+      color: var(--text-color);
       font-family: monospace;
     }
     button {
@@ -69,25 +86,36 @@
       padding: 0.75rem 1.5rem;
       border: none;
       border-radius: 0.5rem;
-      background-color: #ff9900;
+      background-color: var(--highlight);
       color: white;
       font-size: 1rem;
       cursor: pointer;
       transition: background 0.3s;
     }
     button:hover {
-      background-color: #c57d00;
+      background-color: var(--accent);
     }
     .row {
       display: flex;
       align-items: center;
       gap: 1rem;
       margin-top: 0.5rem;
+      flex-wrap: wrap;
     }
-    .toggle-container {
+    .password-row {
       display: flex;
       align-items: center;
-      gap: 0.5rem;
+      position: relative;
+    }
+    .password-row input {
+      padding-right: 40px;
+    }
+    .eye-btn {
+      position: absolute;
+      right: 10px;
+      cursor: pointer;
+      color: #aaa;
+      font-size: 1.2rem;
     }
     .switch {
       position: relative;
@@ -103,8 +131,7 @@
     .slider {
       position: absolute;
       cursor: pointer;
-      top: 0; left: 0;
-      right: 0; bottom: 0;
+      top: 0; left: 0; right: 0; bottom: 0;
       background-color: #666;
       transition: .4s;
       border-radius: 24px;
@@ -112,7 +139,8 @@
     .slider:before {
       position: absolute;
       content: "";
-      height: 18px; width: 18px;
+      height: 18px;
+      width: 18px;
       left: 3px;
       bottom: 3px;
       background-color: white;
@@ -120,91 +148,115 @@
       border-radius: 50%;
     }
     input:checked + .slider {
-      background-color: #ff7b00;
+      background-color: var(--highlight);
     }
     input:checked + .slider:before {
       transform: translateX(26px);
     }
-    .password-row {
-      display: flex;
+    footer {
+      margin-top: 3rem;
+      text-align: center;
+      padding: 1rem;
+      font-size: 0.9rem;
+      opacity: 0.7;
+    }
+    .github-btn {
+      display: inline-flex;
       align-items: center;
-      position: relative;
+      gap: 0.5rem;
+      text-decoration: none;
+      background: #333;
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      color: white;
+      font-weight: bold;
+      transition: background 0.3s;
     }
-    .password-row input {
-      padding-right: 40px;
+    .github-btn:hover {
+      background: #444;
     }
-    .eye-btn {
-      position: absolute;
-      right: 10px;
-      cursor: pointer;
-      color: #ccc;
-      font-size: 1.2rem;
+    .github-btn img {
+      width: 20px;
+      height: 20px;
     }
-    #generate-btn {
-      display: none;
+    .top-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 1rem;
     }
   </style>
 </head>
 <body>
   <div class="container">
-    <h2>LĐ Crypt: Secure Encoder / Decoder</h2>
+    <div class="top-controls">
+      <div class="row">
+        <label class="switch">
+          <input type="checkbox" onchange="toggleMode(this)">
+          <span class="slider"></span>
+        </label>
+        <span>🌙 / ☀️</span>
+      </div>
 
-    <div class="tabs">
-      <div class="tab active" onclick="switchTab('encode')">Encode</div>
-      <div class="tab" onclick="switchTab('decode')">Decode</div>
+      <select id="lang-select" onchange="changeLang(this.value)">
+        <option value="en">English</option>
+        <option value="vi">Tiếng Việt</option>
+      </select>
     </div>
 
-    <!-- Encode Tab -->
+    <h2 id="title">LĐ Crypt: Secure Encoder / Decoder</h2>
+
+    <div class="tabs">
+      <div class="tab active" onclick="switchTab('encode')" id="tab-encode">Encode</div>
+      <div class="tab" onclick="switchTab('decode')" id="tab-decode">Decode</div>
+    </div>
+
     <div id="encode" class="tab-content active">
-      <label>Message to Encode:</label>
+      <label id="label-encode-msg">Message to Encode:</label>
       <textarea id="encode-input" rows="5"></textarea>
 
-      <label>Password:</label>
+      <label id="label-password">Password:</label>
       <div class="password-row">
         <input type="password" id="encode-password" />
         <span class="eye-btn" onclick="toggleVisibility('encode-password', this)">👁️</span>
       </div>
 
-      <div class="row">
-        <div class="toggle-container">
-          <label class="switch">
-            <input type="checkbox" id="random-toggle" onchange="toggleRandomPassword()" />
-            <span class="slider"></span>
-          </label>
-          <span>Randomize Password</span>
-        </div>
-        <button id="generate-btn" onclick="generatePassword()">Generate</button>
-      </div>
+      <button onclick="encodeMessage()" id="btn-encode">Encode</button>
 
-      <button onclick="encodeMessage()">Encode</button>
-
-      <label>Encoded Output:</label>
+      <label id="label-encoded-output">Encoded Output:</label>
       <textarea id="encode-output" rows="5" readonly></textarea>
 
-      <button onclick="copyToClipboard('encode-output')">📋 Copy Output</button>
+      <button onclick="copyToClipboard('encode-output')" id="btn-copy-encode">📋 Copy Output</button>
     </div>
 
-    <!-- Decode Tab -->
     <div id="decode" class="tab-content">
-      <label>Encrypted Message:</label>
+      <label id="label-decode-msg">Encrypted Message:</label>
       <textarea id="decode-input" rows="5"></textarea>
 
-      <label>Password:</label>
+      <label id="label-password2">Password:</label>
       <div class="password-row">
         <input type="password" id="decode-password" />
         <span class="eye-btn" onclick="toggleVisibility('decode-password', this)">👁️</span>
       </div>
 
-      <button onclick="decodeMessage()">Decode</button>
+      <button onclick="decodeMessage()" id="btn-decode">Decode</button>
 
-      <label>Decoded Output:</label>
+      <label id="label-decoded-output">Decoded Output:</label>
       <textarea id="decode-output" rows="5" readonly></textarea>
 
-      <button onclick="copyToClipboard('decode-output')">📋 Copy Output</button>
+      <button onclick="copyToClipboard('decode-output')" id="btn-copy-decode">📋 Copy Output</button>
     </div>
+
+    <footer>
+      <a class="github-btn" href="https://github.com/lycanld" target="_blank">
+        <img src="https://cdn-icons-png.flaticon.com/512/25/25231.png" alt="GitHub" />
+        View on GitHub
+      </a>
+      <div>© 2025 LĐ Crypt — Built with ❤️ — by Trần Long Đỗ (Lycan)</div>
+    </footer>
   </div>
 
-  <!-- CryptoJS -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
   <script>
     function switchTab(tabId) {
@@ -224,10 +276,7 @@
     function encodeMessage() {
       const msg = document.getElementById("encode-input").value.trim();
       const pwd = document.getElementById("encode-password").value.trim();
-      if (!msg || !pwd) {
-        alert("Message and password cannot be empty.");
-        return;
-      }
+      if (!msg || !pwd) return alert("Message and password cannot be empty.");
       try {
         const key = CryptoJS.SHA256(pwd).toString(CryptoJS.enc.Base64);
         const encrypted = CryptoJS.AES.encrypt(msg, key).toString();
@@ -240,10 +289,7 @@
     function decodeMessage() {
       const msg = document.getElementById("decode-input").value.trim();
       const pwd = document.getElementById("decode-password").value.trim();
-      if (!msg || !pwd) {
-        alert("Message and password cannot be empty.");
-        return;
-      }
+      if (!msg || !pwd) return alert("Message and password cannot be empty.");
       try {
         const key = CryptoJS.SHA256(pwd).toString(CryptoJS.enc.Base64);
         const decrypted = CryptoJS.AES.decrypt(msg, key);
@@ -253,24 +299,6 @@
       } catch (e) {
         document.getElementById("decode-output").value = "Decryption failed: " + e;
       }
-    }
-
-    function toggleRandomPassword() {
-      const toggle = document.getElementById("random-toggle").checked;
-      const passwordInput = document.getElementById("encode-password");
-      const generateBtn = document.getElementById("generate-btn");
-      passwordInput.readOnly = toggle;
-      generateBtn.style.display = toggle ? "inline-block" : "none";
-      if (toggle) generatePassword();
-    }
-
-    function generatePassword() {
-      const charset = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*()-_+=<>?";
-      let password = "";
-      for (let i = 0; i < 16; i++) {
-        password += charset.charAt(Math.floor(Math.random() * charset.length));
-      }
-      document.getElementById("encode-password").value = password;
     }
 
     function toggleVisibility(inputId, icon) {
@@ -283,16 +311,48 @@
         icon.textContent = "👁️";
       }
     }
+
+    function toggleMode(toggle) {
+      document.body.classList.toggle("light", toggle.checked);
+    }
+
+    function changeLang(lang) {
+      const en = {
+        title: "LĐ Crypt: Secure Encoder / Decoder",
+        "tab-encode": "Encode",
+        "tab-decode": "Decode",
+        "label-encode-msg": "Message to Encode:",
+        "label-decode-msg": "Encrypted Message:",
+        "label-password": "Password:",
+        "label-password2": "Password:",
+        "btn-encode": "Encode",
+        "btn-decode": "Decode",
+        "label-encoded-output": "Encoded Output:",
+        "label-decoded-output": "Decoded Output:",
+        "btn-copy-encode": "📋 Copy Output",
+        "btn-copy-decode": "📋 Copy Output"
+      };
+      const vi = {
+        title: "LĐ Crypt: Mã hoá và Giải mã Bảo mật",
+        "tab-encode": "Mã hoá",
+        "tab-decode": "Giải mã",
+        "label-encode-msg": "Nội dung cần mã hoá:",
+        "label-decode-msg": "Nội dung đã mã hoá:",
+        "label-password": "Mật khẩu:",
+        "label-password2": "Mật khẩu:",
+        "btn-encode": "Mã hoá",
+        "btn-decode": "Giải mã",
+        "label-encoded-output": "Kết quả mã hoá:",
+        "label-decoded-output": "Kết quả giải mã:",
+        "btn-copy-encode": "📋 Sao chép",
+        "btn-copy-decode": "📋 Sao chép"
+      };
+      const dict = lang === "vi" ? vi : en;
+      for (const id in dict) {
+        const el = document.getElementById(id);
+        if (el) el.textContent = dict[id];
+      }
+    }
   </script>
-  <!-- Footer -->
-  <footer style="background-color: #1e1e1e; text-align: center; padding: 1rem; margin-top: 2rem; border-top: 1px solid #333;">
-    <p style="margin: 0.5rem 0;">© 2025 LĐ Crypt — Built with ❤️ - Created by Trần Long Đỗ (Lycan)</p>
-    <a href="https://github.com/lycanld" target="_blank" style="display: inline-flex; align-items: center; justify-content: center; gap: 0.5rem; text-decoration: none; background-color: #333; color: #fff; padding: 0.5rem 1rem; border-radius: 0.5rem; transition: background 0.3s;">
-      <svg height="20" viewBox="0 0 16 16" fill="white" xmlns="http://www.w3.org/2000/svg">
-        <path d="M8 0C3.58 0 0 3.582 0 8.006c0 3.536 2.292 6.533 5.47 7.59.4.075.546-.174.546-.386 0-.19-.007-.693-.01-1.36-2.226.483-2.695-1.073-2.695-1.073-.364-.924-.89-1.17-.89-1.17-.727-.497.055-.487.055-.487.803.056 1.225.825 1.225.825.714 1.223 1.872.87 2.328.665.072-.517.28-.87.508-1.07-1.777-.202-3.644-.89-3.644-3.956 0-.874.31-1.588.824-2.148-.083-.203-.357-1.02.078-2.126 0 0 .672-.215 2.2.82a7.617 7.617 0 012.002-.27c.68.003 1.364.092 2.002.27 1.528-1.035 2.2-.82 2.2-.82.437 1.106.163 1.923.08 2.126.513.56.823 1.274.823 2.148 0 3.073-1.87 3.752-3.652 3.95.29.25.547.739.547 1.49 0 1.075-.01 1.942-.01 2.206 0 .214.144.464.55.385A8.013 8.013 0 0016 8.006C16 3.582 12.42 0 8 0z"/>
-      </svg>
-      <span>View on GitHub</span>
-    </a>
-  </footer>
 </body>
 </html>
