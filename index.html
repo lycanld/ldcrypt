@@ -42,32 +42,48 @@
       color: var(--highlight);
     }
     .tabs {
-      display: flex;
-      justify-content: center;
-      margin-bottom: 2rem;
-    }
-    .tab {
-      flex: 1;
-      padding: 0.75rem;
-      text-align: center;
-      background-color: var(--tab-bg);
-      cursor: pointer;
-      border-radius: 0.5rem 0.5rem 0 0;
-      transition: background 0.3s;
-    }
-    .tab.active {
-      background-color: var(--highlight);
-      color: #fff;
-    }
-    .tab-content {
-      display: none;
-      background-color: var(--tab-bg);
-      padding: 1.5rem;
-      border-radius: 0 0 0.5rem 0.5rem;
-    }
-    .tab-content.active {
-      display: block;
-    }
+  display: flex;
+  justify-content: center;
+  margin-bottom: 0; /* Still no margin to connect to the content */
+  border-top-left-radius: 0.5rem; /* Rounded top-left corner for the tab container */
+  border-top-right-radius: 0.5rem; /* Rounded top-right corner for the tab container */
+  overflow: hidden; /* Important for clean rounded edges with inner borders */
+}
+
+.tab {
+  flex: 1;
+  padding: 0.75rem;
+  text-align: center;
+  background-color: var(--tab-bg);
+  cursor: pointer;
+  transition: background 0.3s;
+  border-radius: 0; /* Individual tabs should not have their own radius */
+  border-right: 1px solid var(--bg-color); /* Separator between tabs */
+}
+
+.tab:last-child {
+  border-right: none; /* No separator for the last tab */
+}
+
+.tab.active {
+  background-color: var(--highlight);
+  color: #fff;
+}
+
+.tab-content {
+  display: none;
+  background-color: var(--tab-bg);
+  padding: 1.5rem;
+  border-radius: 0 0 0.5rem 0.5rem; /* Rounded bottom corners for the content area */
+}
+
+.tab-content.active {
+  display: block;
+}
+
+.tab-content.active {
+  display: block;
+}
     label {
       display: block;
       margin: 1rem 0 0.5rem;
@@ -333,7 +349,7 @@
         "btn-copy-decode": "📋 Copy Output"
       };
       const vi = {
-        title: "LĐ Crypt: Mã hoá và Giải mã Bảo mật",
+        title: "LĐ Crypt: Mã hoá và Giải mã Thông tin mật",
         "tab-encode": "Mã hoá",
         "tab-decode": "Giải mã",
         "label-encode-msg": "Nội dung cần mã hoá:",
