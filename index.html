@@ -296,16 +296,14 @@
   <script>
         // Check for lock.txt on page load
     // Check if lock.txt exists in the same directory as index.html
-// Fetch lock.txt to check its content
-fetch('lock.txt')
-  .then(res => res.text())
-  .then(text => {
-    if (text.trim() === '1') {
+fetch('lock.txt', { method: 'HEAD' })
+  .then(response => {
+    if (response.ok) {
       showLockScreen();
     }
   })
   .catch(() => {
-    // lock.txt doesn't exist — allow access
+    // Do nothing if lock.txt not found
   });
 
 function showLockScreen() {
@@ -329,10 +327,9 @@ function showLockScreen() {
   `;
   document.body.appendChild(lockScreen);
 
-  // Disable scrolling and interaction
+  // Disable scrolling and pointer interactions
   document.body.style.overflow = 'hidden';
 }
-
 
 
     function switchTab(tabId) {
