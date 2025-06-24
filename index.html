@@ -294,42 +294,7 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/crypto-js/4.1.1/crypto-js.min.js"></script>
   <script>
-        // Check for lock.txt on page load
-    // Check if lock.txt exists in the same directory as index.html
-fetch('lock.txt', { method: 'HEAD' })
-  .then(response => {
-    if (response.ok) {
-      showLockScreen();
-    }
-  })
-  .catch(() => {
-    // Do nothing if lock.txt not found
-  });
 
-function showLockScreen() {
-  const lockScreen = document.createElement('div');
-  lockScreen.style.position = 'fixed';
-  lockScreen.style.top = '0';
-  lockScreen.style.left = '0';
-  lockScreen.style.width = '100%';
-  lockScreen.style.height = '100%';
-  lockScreen.style.backgroundColor = 'var(--bg-color)';
-  lockScreen.style.color = 'var(--text-color)';
-  lockScreen.style.display = 'flex';
-  lockScreen.style.flexDirection = 'column';
-  lockScreen.style.alignItems = 'center';
-  lockScreen.style.justifyContent = 'center';
-  lockScreen.style.zIndex = '9999';
-  lockScreen.style.textAlign = 'center';
-  lockScreen.innerHTML = `
-    <h1 style="font-size: 2.5rem; color: var(--highlight); margin-bottom: 1rem;">🔒 Site Locked</h1>
-    <p style="font-size: 1.2rem;">This website has been temporarily locked by the administrator.</p>
-  `;
-  document.body.appendChild(lockScreen);
-
-  // Disable scrolling and pointer interactions
-  document.body.style.overflow = 'hidden';
-}
 
 
     function switchTab(tabId) {
